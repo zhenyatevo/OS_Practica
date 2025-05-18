@@ -1,0 +1,85 @@
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <vector>
+
+using namespace std;
+
+void generateMatrix(vector<vector<int>> &mas, int n) {
+    int start = -1000;
+    int end = 1000;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+             mas[i][j]= rand() % (end - start + 1) + start;
+        } 
+    }
+
+}
+
+void print(const vector<vector<int>> &mas, int n) {
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            cout.width(3);
+            cout << mas[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+}
+
+void matrixMultiplication(const vector<vector<int>>& A, const vector<vector<int>>& B, vector<vector<int>>& C, int n) {
+
+
+}
+
+// Функция для вычисления одной строки результирующей матрицы
+void multiplyRow(const vector<vector<int>>& A, const vector<vector<int>>& B, vector<vector<int>>& C, int row, int n) {
+    for (int j = 0; j < n; ++j) {
+        C[row][j] = 0; // Инициализируем элемент C[row][j]
+        for (int k = 0; k < n; ++k) {
+            C[row][j] += A[row][k] * B[k][j];
+        }
+    }
+}
+
+
+int main()
+{
+    setlocale(LC_ALL, "ru");
+    int n;
+    cin >> n;
+    auto matrixA = vector<vector<int>>(n, vector<int>(n));
+    auto matrixB = vector<vector<int>>(n, vector<int>(n));
+    auto matrixС = vector<vector<int>>(n, vector<int>(n));
+    //std::thread th(secondary);
+    generateMatrix(matrixA, n);
+    generateMatrix(matrixB, n);
+    //thread th1(generateMatrix, matrixA, n);
+    //thread th2(generateMatrix, matrixB, n);
+
+     // Создаем и запускаем потоки для каждой строки результирующей матрицы
+    vector<thread> threads;
+    for (int i = 0; i < n; ++i) {
+        threads.push_back(thread(multiplyRow, cref(matrixA), cref(matrixB), ref(matrixС), i, n));
+    }
+
+    // Ожидаем завершение всех потоков
+    for (auto& th : threads) {
+        th.join();
+    }
+
+    print(matrixС, n);
+    
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    //std::cout << std::this_thread::get_id();
+
+
+    //th1.join();
+    //th2.join();
+    return 0;
+}
+
